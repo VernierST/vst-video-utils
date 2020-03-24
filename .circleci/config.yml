@@ -1,0 +1,83 @@
+version: 2
+
+defaults: &defaults
+  working_directory: ~/repo
+  macos:
+    xcode: "10.2.1"
+
+jobs:
+  build:
+    <<: *defaults  
+    steps:
+      - checkout
+      - run:
+          name: Installing CMake
+          command: |
+            brew list
+            brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/cmake.rb
+      - run:
+          name: Set environment
+          command: sh ./ci/envscript.sh
+      - run:
+          name: Run Build
+          command: sh ./build.sh
+      - persist_to_workspace:
+          root: ~/repo
+          paths: 
+            - project
+  deploypatch:
+    <<: *defaults  
+    steps:
+      - attach_workspace:
+          at: ~/repo
+      - run:
+          name: Publishing patch
+          command: sh ./ci/envscript.sh
+  deployminor:
+    macos:
+      xcode: "10.2.1"
+    steps:
+      - run:
+          name: Publishing minor
+          command: sh ./ci/publish.sh minor
+  deploymajor:
+    macos:
+      xcode: "10.2.1"
+    steps:
+      - run:
+          name: Publishing major
+          command: sh ./ci/publish.sh major
+
+
+workflows:
+  version: 2
+  build-and-deploy:
+    jobs:
+      - build:
+          filters:  # required since `deploy` has tag filters AND requires `build`
+            tags:
+              only: /.*/
+      - deploypatch:
+          requires:
+            - build
+          filters:
+            tags:
+              only: /^patch/
+            branches:
+              ignore: /.*/
+      - deployminor:
+          requires:
+            - build
+          filters:
+            tags:
+              only: /^minor/
+            branches:
+              ignore: /.*/
+      - deploymajor:
+          requires:
+            - build
+          filters:
+            tags:
+              only: /^major/
+            branches:
+              ignore: /.*/
