@@ -1,3 +1,11 @@
+build/*
+!build/dist/VideoUtils.js
+!build/dist/vstvideoutils.js
+!build/dist/vstvideoutils.wasm
+
+# wasm
+*.wast
+
 # Prerequisites
 *.d
 
