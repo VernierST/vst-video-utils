@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>VideoUtils - Test</title>
+
+    <style>
+      table {
+        border-collapse: collapse;
+      }
+
+      thead * {
+        font-weight: bold;
+      }
+
+      td, th {
+        border: 1px solid #999;
+        padding: 0.5rem;
+        text-align: left;
+      }
+    </style>
+  </head>
+  <body>
+    <input id="file-input" type="file" accept="*/*"></input>
+    <br>
+    <button onclick="dumpMetaData()">Dump File Info</button>
+    <br>
+    <button onclick="readMetaData()">Read Metadata</button>
+    <br>
+    <button onclick="doTransOperation('transmuxStripMeta')">Transmux File</button>
+    <br>
+    <button onclick="doTransOperation('transcodeRotation')">Transcode File</button>
+    <br>
+    <button onclick="saveFile()">Save File</button>
+    <input id="save-input"></input>
+    <br>
+    <br>
+    <button onclick="runBenchmark('transmuxStripMeta')">Run Transmux Benchmark</button>
+    <br>
+    <button onclick="runBenchmark('transcodeRotation')">Run Transcode Benchmark</button>
+    <br>
+    <pre id='benchmark-status'></pre>
+    <pre id='benchmark-output'></pre>
+
+
+    <!-- SETUP TEST DATABASE -->
+    <script>
+      const DBNAME = 'mydb';
+      const STORENAME = 'FILE_DATA';
+
+      let db;
+
+      const dbreq = indexedDB.open(DBNAME,22);
+      console.assert(dbreq);
+      dbreq.onerror = (e) => {
+        console.error(e);
+      };
+
+      dbreq.onsuccess = (e) => {
+        console.dir(e);
+        db = dbreq.result;
+        console.dir(db);
+      };
+
+      dbreq.onupgradeneeded = (e) => {
+        const db = e.target.result;
+        db.createObjectStore(STORENAME);
+      };
+
+      document.querySelector('#file-input').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        console.dir(file);
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const buf = reader.result;
+          console.dir(buf);
+
+          console.assert(db);
+          const trans = db.transaction(STORENAME, 'readwrite');
+
+          trans.objectStore(STORENAME).put(new Uint8Array(buf), file.name);
+
+        };
+        reader.readAsArrayBuffer(file);
+      }, false);
+
+    </script>
+
+    <script>
+      function readFromIndexedDB(filename) {
+        return new Promise((resolve, reject) => {
+          const trans = db.transaction(STORENAME, 'readonly');
+          const req = trans.objectStore(STORENAME).get(filename);
+
+          req.onerror = event => {
+            reject(event.target.error);
+          };
+
+          req.onsuccess = () => {
+            resolve(req.result);
+          };
+        });
+      }
+
+      function writeToIndexedDB(filename, buf) {
+        return new Promise((resolve,reject) => {
+          const trans = db.transaction(STORENAME, 'readwrite');
+          const req = trans.objectStore(STORENAME).put(new Uint8Array(buf), filename);
+
+          req.onerror = event => {
+            reject(event.target.error);
+          };
+
+          req.onsuccess = () => {
+            resolve();
+          };
+        });
+      }
+
+      function removeFileFromIndexedDB(filename) {
+        return new Promise((resolve, reject) => {
+          const trans = db.transaction(STORENAME, 'readwrite');
+          const req = trans.objectStore(STORENAME).delete(filename);
+
+          req.onerror = event => {
+            reject(event.target.error);
+          };
+
+          req.onsuccess = () => {
+            resolve();
+          };
+        });
+      }
+
+    </script>
+
+    <script>
+      const OUTPUT_FILENAME = 'output.mp4';
+
+      document.querySelector('#save-input').value = OUTPUT_FILENAME;
+
+      function saveFile() {
+
+        let filename = OUTPUT_FILENAME;
+
+        const input = document.querySelector('#save-input');
+        filename = (input && input.value) ? input.value : filename;
+
+        const trans = db.transaction(STORENAME, 'readonly');
+        const req = trans.objectStore(STORENAME).get(filename);
+
+        req.onerror = event => {
+          console.error(event.target.error);
+        };
+
+        req.onsuccess = () => {
+          const arr = req.result;
+          if (arr) {
+            console.dir(arr);
+            const blob = new Blob([arr]);
+            const blobURL = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.download = filename;
+            a.href = blobURL;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+          }
+          else {
+            console.error('Failed to read file');
+          }
+        };
+      }
+
+
+      function dumpMetaData() {
+        const el = document.querySelector('#file-input');
+        let filename = (el && el.value) ? el.value : OUTPUT_FILENAME;
+        filename = filename.replace(/.*\//,'');
+        filename = filename.replace(/.*\\/,'');
+        console.log(`Dump metadata on file: ${filename}`);
+
+        vidUtils.dumpMetaData(DBNAME, filename).then(meta => {
+        }).catch(e => console.error(e));
+      }
+
+      function readMetaData() {
+        const el = document.querySelector('#file-input');
+        let filename = (el && el.value) ? el.value : OUTPUT_FILENAME;
+        filename = filename.replace(/.*\//,'');
+        filename = filename.replace(/.*\\/,'');
+        console.log(`Getting metadata on file: ${filename}`);
+
+        vidUtils.readMetaData(DBNAME, filename).then(meta => {
+          console.log('File Metadata');
+          console.dir(meta);
+        }).catch(e => console.error(e));
+      }
+
+      function doTransOperation(which) {
+        const el = document.querySelector('#file-input');
+        let filename = (el && el.value) ? el.value : "invalid.mov";
+        filename = filename.replace(/.*\//,'');
+        filename = filename.replace(/.*\\/,'');
+        console.log(`${which}: ${filename}`);
+
+        vidUtils[which](DBNAME, filename, OUTPUT_FILENAME).then(result => {
+          console.log(`${which} finished`);
+          console.dir(result);
+        }).catch(e => console.error(e));
+      }
+
+    </script>
+
+    <script>
+      const statusEl = document.querySelector('#benchmark-status');
+      const outputEl = document.querySelector('#benchmark-output');
+
+//      const URL_PATH = 'https://qa-test-videos.s3.us-east-2.amazonaws.com';
+      const URL_PATH = '/samples';
+
+      async function runBenchmark(which) {
+        const benchmarkFiles = [
+          'ConstV4.mp4',
+          'ConstV2.mp4',
+//          'CBCameraVideo.mkv',
+//          'Equal_Mass_Colliding_Carts.m4v',
+          'BasketBallShot.mov',
+          'segway.mov',
+          'NegativeVelocity.mp4',
+          'ornament at 30fps.mov',
+          'Android_Land.mp4',
+          'AndroidP.mp4',
+          'AndroidP1.mp4',
+          'Android_L1.mp4',
+          'Turntable.mp4',
+          'iOS_L1080p60fpsH264.MOV',
+          'dslr_L108030fpsLowcom.MOV',
+          'iOS_4k30fpsH264Port.MOV',
+          'iOS_L4k24fpsH264.MOV',
+          'dslr_L1080p30fps.MOV',
+          'dslr_1080p30fpsPortHi.MOV',
+          'iOS_720H26430fpsPort.MOV',
+          'VATestLog.mp4',
+          'Basketball Shot.mp4'
+        ];
+
+        const totalCount = benchmarkFiles.length;
+        function updateBenchMarkRunning(name, n) {
+          statusEl.innerHTML = `Running Benchmark ${n} of ${totalCount} (${name}) ...`;
+        }
+
+
+        const lines = [];
+        function getNextURL() {
+          let name = benchmarkFiles.shift();
+          let url;
+          if (name) {
+            url = `${URL_PATH}/${name}`;
+          }
+          return name ? { name, url } : null;
+        }
+
+        try {
+          let n = 1;
+          const tableHeader =
+            `<table>
+              <thead>
+                <tr>
+                  <td>Filename</td><td>Original Filesize (KB)</td><td>Resulting Filesize (KB)</td><td>Total Time (sec)</td>
+                </tr>
+              </thead>
+            `;
+          const tableFooter = '</table>'
+
+          let file;
+          while ( (file = getNextURL()) ) {
+
+            const srcFile = file.name;
+            const dstFile = srcFile + '.mp4';
+
+            updateBenchMarkRunning(srcFile, n++);
+
+            // get the source video
+            const response = await fetch(file.url);
+            const buffer = await response.arrayBuffer();
+
+            // and save it to indexedDB
+            await writeToIndexedDB(srcFile, buffer);
+
+            // perform the transmux/transcode operation on the file
+            const t0 = performance.now();
+            const result = await vidUtils[which](DBNAME, srcFile, dstFile);
+            const t1 = performance.now();
+
+            // readout the resulting file
+            const newBytes = await readFromIndexedDB(dstFile);
+
+            const oldSize = (buffer.byteLength / 1024).toFixed(3);
+            const newSize = newBytes ? (newBytes.byteLength / 1024).toFixed(3) : "(null)";
+
+            // clean up after ourselves
+            await removeFileFromIndexedDB(srcFile);
+            await removeFileFromIndexedDB(dstFile);
+
+            // append the results to the table
+            const timeMS = ( (t1 - t0) / 1000 ).toFixed(3);
+            lines.push('<tr>');
+            lines.push(`<td>${srcFile}</td><td>${oldSize}</td><td>${newSize}</td><td>${timeMS}</td>`);
+            lines.push('</tr>');
+
+            outputEl.innerHTML = tableHeader + lines.join('\n') + tableFooter;
+          }
+          statusEl.innerHTML = 'Benchmark Results:<br>';
+        }
+        catch(e) {
+          console.error(e);
+          const errmsg = (e.message ? e.message : e.error);
+          statusEl.innerHTML += '\nERROR: ' + errmsg;
+        }
+
+      }
+    </script>
+
+    <script type="module">
+      import { VideoUtils } from './VideoUtils.js'
+
+      const vidUtils = new VideoUtils();
+
+      vidUtils.init().then(() => {
+        console.log('Video Utils Initialized');
+      }).catch((e) => {
+        console.error('Video Utils Initialization Failed');
+        console.dir(e);
+      });
+
+      window.vidUtils = vidUtils;
+    </script>
+
+  </body>
+</html>
