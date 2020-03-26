@@ -2,19 +2,17 @@ version: 2
 
 defaults: &defaults
   working_directory: ~/repo
-  macos:
-    xcode: "10.2.1"
+  machine: # executor type
+    image: ubuntu-1604:201903-01
 
 jobs:
   build:
-    <<: *defaults  
+    <<: *defaults 
     steps:
       - checkout
       - run:
-          name: Installing CMake
-          command: |
-            brew list
-            brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/cmake.rb
+          name: Installing Dependencies
+          command: sh ./ci/installDependencies.sh
       - run:
           name: Set environment
           command: sh ./ci/envscript.sh
@@ -24,7 +22,7 @@ jobs:
       - persist_to_workspace:
           root: ~/repo
           paths: 
-            - project
+            - .
   deploypatch:
     <<: *defaults  
     steps:
@@ -32,7 +30,7 @@ jobs:
           at: ~/repo
       - run:
           name: Publishing patch
-          command: sh ./ci/envscript.sh
+          command: sh ./ci/publish.sh patch
   deployminor:
     macos:
       xcode: "10.2.1"
@@ -47,7 +45,6 @@ jobs:
       - run:
           name: Publishing major
           command: sh ./ci/publish.sh major
-
 
 workflows:
   version: 2
