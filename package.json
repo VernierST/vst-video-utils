@@ -19,7 +19,6 @@
   },
   "homepage": "https://github.com/VernierST/vst-video-utils-build#readme",
   "devDependencies": {
-    "release-it": "^13.0.2",
-    "@vernier/vst-video-utils-build": "latest"
+    "release-it": "^13.0.2"
   }
 }
