@@ -18,7 +18,7 @@ jobs:
           command: sh ./ci/envscript.sh
       - run:
           name: Run Build
-          command: bash ./build.sh
+          command: bash ./ci/build.sh
       - persist_to_workspace:
           root: ~/repo
           paths: 
