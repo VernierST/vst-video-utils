@@ -2,6 +2,7 @@
 
 echo "Pushing changes to GitHub"
 
+
 echo "Deleting previous tags"
 git tag -l | xargs -n 1 git push --delete origin
 git tag | xargs git tag -d
