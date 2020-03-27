@@ -11,9 +11,6 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Installing Dependencies
-          command: sh ./ci/installDependencies.sh
-      - run:
           name: Set environment
           command: sh ./ci/envscript.sh
       - run:
