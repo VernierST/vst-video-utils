@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-sh ./ciScripts/initSubmodules.sh
+sh ./ci/ciScripts/initSubmodules.sh
 
-sh ./ciScripts/installDependencies.sh
+sh ./ci/ciScripts/installDependencies.sh
 
-sh ./ciScripts/activateEmsdk.sh
+sh ./ci/ciScripts/activateEmsdk.sh
 
 cd emsdk
 . ./emsdk_env.sh
