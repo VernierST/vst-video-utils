@@ -15,7 +15,7 @@ jobs:
           command: bash ./ci/installDependencies.sh
       - run:
           name: Set environment
-          command: bash ./ci/envscript.sh
+          command: . ./ci/envscript.sh
       - run:
           name: Run Build
           command: bash ./build.sh
