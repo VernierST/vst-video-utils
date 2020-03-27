@@ -12,10 +12,10 @@ jobs:
       - checkout
       - run:
           name: Install dependencies
-          command: bash ./ci/installDependencies.sh
+          command: sh ./ci/installDependencies.sh
       - run:
           name: Set environment
-          command: . ./ci/envscript.sh
+          command: sh ./ci/envscript.sh
       - run:
           name: Run Build
           command: bash ./build.sh
@@ -30,7 +30,7 @@ jobs:
           at: ~/repo
       - run:
           name: Publishing patch
-          command: bash ./ci/publish.sh patch
+          command: sh ./ci/publish.sh patch
   deployminor:
     macos:
       xcode: "10.2.1"
@@ -44,7 +44,7 @@ jobs:
     steps:
       - run:
           name: Publishing major
-          command: bash ./ci/publish.sh major
+          command: sh ./ci/publish.sh major
 
 workflows:
   version: 2
