@@ -12,13 +12,13 @@ jobs:
       - checkout
       - run:
           name: Install dependencies
-          command: sh ./ci/installDependencies.sh
+          command: ./ci/installDependencies.sh
       - run:
           name: Set environment
-          command: sh ./ci/envscript.sh
+          command: ./ci/envscript.sh
       - run:
           name: Run Build
-          command: sh ./build.sh
+          command: ./build.sh
       - persist_to_workspace:
           root: ~/repo
           paths: 
@@ -30,21 +30,21 @@ jobs:
           at: ~/repo
       - run:
           name: Publishing patch
-          command: sh ./ci/publish.sh patch
+          command: ./ci/publish.sh patch
   deployminor:
     macos:
       xcode: "10.2.1"
     steps:
       - run:
           name: Publishing minor
-          command: sh ./ci/publish.sh minor
+          command: ./ci/publish.sh minor
   deploymajor:
     macos:
       xcode: "10.2.1"
     steps:
       - run:
           name: Publishing major
-          command: sh ./ci/publish.sh major
+          command: ./ci/publish.sh major
 
 workflows:
   version: 2
