@@ -16,3 +16,5 @@ emcc -v
 cd ..
 
 echo $EMSDK
+
+bash ../build.sh
