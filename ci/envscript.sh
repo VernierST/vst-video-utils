@@ -12,7 +12,7 @@ pwd
 ./emsdk activate 1.39.7-fastcomp
 
 # activate PATH and other env variables in the current terminal
-source ./emsdk_env.sh
+. ./emsdk_env.sh
 
 ./emsdk list
 
