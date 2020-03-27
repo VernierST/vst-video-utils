@@ -17,6 +17,9 @@ jobs:
           name: Set environment
           command: sh ./ci/envscript.sh
       - run:
+          name: Init submodules
+          command: sh ./ci/initSubmodules.sh
+      - run:
           name: Run Build
           command: bash ./ci/build.sh
       - persist_to_workspace:
