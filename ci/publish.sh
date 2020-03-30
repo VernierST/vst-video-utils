@@ -12,17 +12,8 @@ npm install
 curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh | bash
 
 export NVM_DIR="/opt/circleci/.nvm"
-
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 nvm install 10.0.0
-#git checkout -b circle-publish-branch
-#git push --set-upstream origin circle-publish-branch
 
 echo "Publishing" $1 
 npm run release -- $1 --ci --no-git.requireCleanWorkingDir
-
-#git add .
-
-#git commit -m Committing $1 changes to repo
-#git push
-
-echo "Branch 'circle-publish-branch' created in the GitHub repo.  Please merge with master"
