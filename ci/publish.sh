@@ -9,6 +9,8 @@ echo "Deleting previous tags"
 
 npm install
 
+curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh | bash
+
 nvm install 10.0.0
 #git checkout -b circle-publish-branch
 #git push --set-upstream origin circle-publish-branch
