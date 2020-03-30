@@ -9,6 +9,7 @@ echo "Deleting previous tags"
 
 npm install
 
+nvm install 10.0.0
 #git checkout -b circle-publish-branch
 #git push --set-upstream origin circle-publish-branch
 
