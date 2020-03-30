@@ -17,4 +17,4 @@ cd ..
 
 echo $EMSDK
 
-bash ../build.sh
+bash ./build.sh
