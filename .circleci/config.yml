@@ -23,22 +23,21 @@ jobs:
       - attach_workspace:
           at: ~/repo
       - run:
-          name: Authenticate with registry
-          command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/repo/.npmrc
-      - run:
           name: Publishing patch
           command: sh ./ci/publish.sh patch
   deployminor:
-    macos:
-      xcode: "10.2.1"
+    <<: *defaults  
     steps:
+      - attach_workspace:
+          at: ~/repo
       - run:
           name: Publishing minor
           command: bash ./ci/publish.sh minor
   deploymajor:
-    macos:
-      xcode: "10.2.1"
+    <<: *defaults  
     steps:
+      - attach_workspace:
+          at: ~/repo
       - run:
           name: Publishing major
           command: sh ./ci/publish.sh major

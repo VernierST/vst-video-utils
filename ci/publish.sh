@@ -7,6 +7,8 @@ echo "Deleting previous tags"
 #git tag -l | xargs -n 1 git push --delete origin
 #git tag | xargs git tag -d
 
+echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/repo/.npmrc
+
 npm install
 
 curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh | bash
