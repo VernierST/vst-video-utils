@@ -13,6 +13,13 @@ jobs:
       - run:
           name: Run Build
           command: bash ./ci/build.sh
+      
+      - run:
+          name: set var
+          command: mkdir -p workspace
+      - run: echo "export $BRANCH=`git rev-parse --abbrev-ref HEAD`" >> workspace/new-env-vars
+      - run: cat workspace/new-env-vars >> $BASH_ENV
+      - run: echo "$BRANCH"
       - persist_to_workspace:
           root: ~/repo
           paths: 
@@ -26,6 +33,8 @@ jobs:
       - run:
           name: Publishing patch
           command: sh ./ci/publish.sh patch
+      - run: cat workspace/new-env-vars >> $BASH_ENV
+      - run: echo "$BRANCH"
   deployminor:
     <<: *defaults  
     steps:
