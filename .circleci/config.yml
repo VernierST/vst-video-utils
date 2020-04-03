@@ -22,7 +22,7 @@ jobs:
       - run:
           name: set var
           command: mkdir -p workspace
-      - run: echo "export BRANCH=${CIRCLE_BRANCH}" >> workspace/new-env-vars
+      - run: echo "export BRANCH=$CIRCLE_BRANCH" >> workspace/new-env-vars
       - run: cat workspace/new-env-vars >> $BASH_ENV
       - run: 
           name: Testing branch
@@ -40,6 +40,7 @@ jobs:
       - attach_workspace:
           at: ~/repo
       - checkout
+      - run: cat workspace/new-env-vars
       - run: cat workspace/new-env-vars >> $BASH_ENV
       - run: echo "$BRANCH"
       - run:
