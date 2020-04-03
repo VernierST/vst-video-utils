@@ -23,9 +23,14 @@ jobs:
       - run:
           name: set var
           command: mkdir -p workspace
-      - run: echo "export $BRANCH=`git rev-parse --abbrev-ref HEAD`" >> workspace/new-env-vars
+      - run: echo "export $BRANCH=${CIRCLE_BRANCH}" >> workspace/new-env-vars
       - run: cat workspace/new-env-vars >> $BASH_ENV
-      - run: echo "$BRANCH"
+      - run: 
+          name: Testing branch
+          command: echo "$BRANCH"
+      - run: 
+          name: Testing new-env-vars
+          command: cat workspace/new-env-vars
       - persist_to_workspace:
           root: ~/repo
           paths: 
