@@ -5,7 +5,7 @@ defaults: &defaults
   machine: 
     image: ubuntu-1604:201903-01
 
-    
+
 jobs:
   build:
     <<: *defaults 
@@ -14,7 +14,9 @@ jobs:
       - run:
           name: Run Build
           command: bash ./ci/build.sh
-      
+      - run: # print the name of the branch we're on
+          name: "What branch am I on?"
+          command: echo ${CIRCLE_BRANCH}
       - run:
           name: set var
           command: mkdir -p workspace
