@@ -5,64 +5,31 @@ defaults: &defaults
   machine: 
     image: ubuntu-1604:201903-01
 
-    
+
 jobs:
   build:
     <<: *defaults 
     steps:
       - checkout
-      - run: # print the name of the branch we're on
-          name: "What branch am I on?"
-          command: echo ${CIRCLE_BRANCH}
       - run:
           name: Run Build
           command: bash ./ci/build.sh
-      - run: # print the name of the branch we're on
-          name: "What branch am I on2?"
-          command: echo ${CIRCLE_BRANCH}
-      - run:
-          name: set var
-          command: mkdir -p workspace
-      - run: echo "export BRANCH=$CIRCLE_BRANCH" >> workspace/new-env-vars
-      - run: cat workspace/new-env-vars >> $BASH_ENV
-      - run: 
-          name: Testing branch
-          command: echo "$BRANCH"
-      - run: 
-          name: Testing new-env-vars
-          command: cat workspace/new-env-vars
       - persist_to_workspace:
           root: ~/repo
           paths: 
             - .
-  deploypatch:
+
+  deploy:
     <<: *defaults  
     steps:
       - attach_workspace:
           at: ~/repo
-      - checkout
-      - run: cat workspace/new-env-vars
-      - run: cat workspace/new-env-vars >> $BASH_ENV
-      - run: echo "$BRANCH"
+      - run:
+          name: Authenticate with registry
+          command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/repo/.npmrc
       - run:
           name: Publishing patch
-          command: sh ./ci/publish.sh patch
-  deployminor:
-    <<: *defaults  
-    steps:
-      - attach_workspace:
-          at: ~/repo
-      - run:
-          name: Publishing minor
-          command: bash ./ci/publish.sh minor
-  deploymajor:
-    <<: *defaults  
-    steps:
-      - attach_workspace:
-          at: ~/repo
-      - run:
-          name: Publishing major
-          command: sh ./ci/publish.sh major
+          command: npm publish --access public
 
 workflows:
   version: 2
@@ -72,27 +39,11 @@ workflows:
           filters:  # required since `deploy` has tag filters AND requires `build`
             tags:
               only: /.*/
-      - deploypatch:
+      - deploy:
           requires:
             - build
           filters:
             tags:
-              only: /^patch/
+              only: /^v.*/
             branches:
-              ignore: /.*/
-      - deployminor:
-          requires:
-            - build
-          filters:
-            tags:
-              only: /^minor/
-            branches:
-              ignore: /.*/
-      - deploymajor:
-          requires:
-            - build
-          filters:
-            tags:
-              only: /^major/
-            branches:
-              ignore: /.*/
+              only: master
