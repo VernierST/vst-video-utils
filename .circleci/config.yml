@@ -40,11 +40,11 @@ jobs:
       - attach_workspace:
           at: ~/repo
       - checkout
+      - run: cat workspace/new-env-vars >> $BASH_ENV
+      - run: echo "$BRANCH"
       - run:
           name: Publishing patch
           command: sh ./ci/publish.sh patch
-      - run: cat workspace/new-env-vars >> $BASH_ENV
-      - run: echo "$BRANCH"
   deployminor:
     <<: *defaults  
     steps:

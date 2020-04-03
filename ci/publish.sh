@@ -10,6 +10,8 @@ echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/repo/.npmrc
 
 npm install
 
+git checkout $BRANCH
+
 curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh | bash
 
 export NVM_DIR="/opt/circleci/.nvm"
