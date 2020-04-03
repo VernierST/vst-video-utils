@@ -5,7 +5,6 @@ defaults: &defaults
   machine: 
     image: ubuntu-1604:201903-01
 
-
 jobs:
   build:
     <<: *defaults 
