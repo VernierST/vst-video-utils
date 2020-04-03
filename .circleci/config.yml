@@ -11,11 +11,14 @@ jobs:
     <<: *defaults 
     steps:
       - checkout
+      - run: # print the name of the branch we're on
+          name: "What branch am I on?"
+          command: echo ${CIRCLE_BRANCH}
       - run:
           name: Run Build
           command: bash ./ci/build.sh
       - run: # print the name of the branch we're on
-          name: "What branch am I on?"
+          name: "What branch am I on2?"
           command: echo ${CIRCLE_BRANCH}
       - run:
           name: set var
