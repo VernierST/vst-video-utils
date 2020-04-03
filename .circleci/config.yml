@@ -7,6 +7,17 @@ defaults: &defaults
 
 
 jobs:
+  build-for-deploy:
+    <<: *defaults 
+    steps:
+      - checkout
+      - run:
+          name: Run Build
+          command: bash ./ci/build.sh
+      - persist_to_workspace:
+          root: ~/repo
+          paths: 
+            - .
   build:
     <<: *defaults 
     steps:
@@ -18,18 +29,6 @@ jobs:
           root: ~/repo
           paths: 
             - .
-
-  deploy:
-    <<: *defaults  
-    steps:
-      - attach_workspace:
-          at: ~/repo
-      - run:
-          name: Authenticate with registry
-          command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/repo/.npmrc
-      - run:
-          name: Publishing patch
-          command: npm publish --access public
 
 workflows:
   version: 2
@@ -43,6 +42,7 @@ workflows:
           requires:
             - build
           filters:
+            tags:
+              only: /^v.*/
             branches:
-              tags:
-                only: /^v.*/
+              ignore: /.*/ 
