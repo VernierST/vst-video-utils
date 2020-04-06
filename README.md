@@ -2,6 +2,11 @@
 
 Misc Video Utilities
 
+### Overview
+
+To publish a new version to NPM, bump the version in package.json.  CircleCI will check the version in package.json and compare it with the current version in the NPM registry. If the versions differ, CircleCI will automatically publish the new version. 
+
+
 ### Command Line Flags
 
 The following flags were used to compile FFmpeg:
