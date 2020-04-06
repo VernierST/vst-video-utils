@@ -10,6 +10,7 @@ else
     PUBLISH=true
 fi
 
-if [ "$PUBLISH" == true]; then
-   sh publishPackage.sh
+if [ "$PUBLISH" == true ]; then
+   echo PUBLISHING
+   #sh publishPackage.sh
 fi
