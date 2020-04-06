@@ -29,7 +29,7 @@ jobs:
           command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/repo/.npmrc
       - run:
           name: Check version and deploy
-          command: bash ./ci/checkVersions.sh
+          command: bash ./ci/ciScripts/checkVersions.sh
 
 workflows:
   version: 2

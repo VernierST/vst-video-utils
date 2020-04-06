@@ -12,5 +12,5 @@ fi
 
 if [ "$PUBLISH" == true ]; then
    echo PUBLISHING
-   #sh publishPackage.sh
+   sh ./ci/ciScripts/publishPackage.sh
 fi
