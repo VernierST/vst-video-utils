@@ -6,3 +6,6 @@
 	path = openh264
 	url = https://github.com/VernierST/openh264
 	branch = wasm_build
+[submodule "opencv"]
+	path = opencv
+	url = https://github.com/opencv/opencv

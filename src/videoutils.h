@@ -17,5 +17,9 @@ WASM_EXPORT void readMetaData     (int reqId, std::string db, std::string filena
 WASM_EXPORT void transcodeRotation(int reqId, std::string db, std::string src, std::string dst);
 WASM_EXPORT void transmuxStripMeta(int reqId, std::string db, std::string src, std::string dst);
 
+// objtracking.cpp
+WASM_EXPORT void createTrackingContext(int reqId, double x, double y, double radius);
+WASM_EXPORT void destroyTrackingContext(int reqId, int trackingCtxId);
+WASM_EXPORT void trackObjectNextFrame(int reqId, int trackingCtxId, double timeStamp, int width, int height, uint32_t pbuf);
 
 #endif
