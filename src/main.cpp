@@ -9,11 +9,25 @@ EMSCRIPTEN_BINDINGS(videoutils) {
   emscripten::function("readMetaData",  &readMetaData);
   emscripten::function("transcodeRotation", &transcodeRotation);
   emscripten::function("transmuxStripMeta", &transmuxStripMeta);
+
+  emscripten::function("createTrackingContext", &createTrackingContext);
+  emscripten::function("destroyTrackingContext", &destroyTrackingContext);
+  emscripten::function("trackObjectNextFrame2", &trackObjectNextFrame);
 }
 
 int main()
 {
   InitVideoUtils();
+
+  EM_ASM(
+    Module.trackObjectNextFrame = (reqId,trackingCtxId,timeStamp,width,height,buffer) => {
+      const u8 = new Uint8Array(buffer);
+      const ptr = Module._malloc(u8.byteLength); // The handler will free this data
+      Module.HEAPU8.set(u8, ptr);
+      return Module['trackObjectNextFrame2'](reqId,trackingCtxId,timeStamp,width,height,ptr);
+    };
+  );
+
   return 0;
 }
 

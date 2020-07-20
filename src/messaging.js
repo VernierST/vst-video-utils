@@ -25,4 +25,6 @@ self.onmessage = (e) => {
   }
 };
 
-postMessage('initialized');
+Module.onRuntimeInitialized = () => {
+  postMessage('initialized');
+};

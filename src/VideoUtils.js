@@ -111,6 +111,17 @@ export class VideoUtils {
     return this.client.callMethod('transmuxStripMeta', [db,src,dst]);
   }
 
+  createTrackingContext(x, y, radius) {
+    return this.client.callMethod('createTrackingContext', [x,y,radius]);
+  }
+
+  destroyTrackingContext(trackingCtxId) {
+    return this.client.callMethod('destroyTrackingContext', [trackingCtxId]);
+  }
+
+  trackObjectNextFrame(trackingCtxId,timeStamp,width,height,buffer) {
+    return this.client.callMethod('trackObjectNextFrame', [trackingCtxId,timeStamp,width,height,buffer]);
+  }
 
   shutdown() {
     if (this.client) {
