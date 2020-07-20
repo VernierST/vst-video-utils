@@ -4,12 +4,13 @@ git clone https://github.com/emscripten-core/emsdk.git
 cd emsdk
 pwd
 
+EMSDK_VERSION=sdk-fastcomp-1.38.30-64bit
+
 # Download and install the right SDK tool
-./emsdk install 1.39.7-fastcomp
+./emsdk install $EMSDK_VERSION
 
 # Activate the right version of the SDK
-#./emsdk activate sdk-fastcomp-tag-1.38.30-64bit
-./emsdk activate 1.39.7-fastcomp
+./emsdk activate $EMSDK_VERSION
 
 # activate PATH and other env variables in the current terminal
 
