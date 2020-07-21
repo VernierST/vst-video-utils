@@ -18,5 +18,8 @@ cd ..
 echo $EMSDK
 
 export PATH=/opt/circleci/.pyenv/versions/2.7.12/bin/:$PATH
+pyenv global 2.7.12
+
+python --version
 
 bash ./build.sh
