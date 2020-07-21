@@ -7,17 +7,6 @@ defaults: &defaults
 
 
 jobs:
-  build-for-deploy:
-    <<: *defaults 
-    steps:
-      - checkout
-      - run:
-          name: Run Build
-          command: bash ./ci/build.sh
-      - persist_to_workspace:
-          root: ~/repo
-          paths: 
-            - .
   build:
     <<: *defaults 
     steps:
@@ -30,19 +19,26 @@ jobs:
           paths: 
             - .
 
+  deploy:
+    <<: *defaults  
+    steps:
+      - attach_workspace:
+          at: ~/repo
+      - run:
+          name: Authenticate with registry
+          command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/repo/.npmrc
+      - run:
+          name: Check version and deploy
+          command: bash ./ci/ciScripts/checkVersions.sh
+
 workflows:
   version: 2
   build-and-deploy:
     jobs:
       - build:
-          filters:  # required since `deploy` has tag filters AND requires `build`
+          filters:
             branches:
               only: master
       - deploy:
           requires:
             - build
-          filters:
-            tags:
-              only: /^v.*/
-            branches:
-              ignore: /.*/ 
