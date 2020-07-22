@@ -48,6 +48,18 @@ mkdir -p "$FFMPEG_BUILDDIR" 2>/dev/null
 export PKG_CONFIG_PATH=${OPENH264_BUILDDIR}/lib/pkgconfig
 export EM_PKG_CONFIG_PATH=${PKG_CONFIG_PATH}
 
+
+function exitError() {
+  echo "ERROR: $*"
+  exit 1
+}
+
+function checkError(){
+  if [[ $? -ne 0 ]]; then
+    exitError "$*"
+  fi
+}
+
 ######################
 ### Build OpenH264 ###
 ######################
@@ -59,10 +71,8 @@ if [[ $BUILD_OPENH264 -ne 0 ]]; then
   echo "*************************"
 
   emmake make $EXTRA_MAKE_ARGS PREFIX="${OPENH264_BUILDDIR}" -f ${OPENH264_SRCDIR}/Makefile install
-  if [[ $? -ne 0 ]]; then
-    echo "Build OpenH264 failed"
-    exit 1
-  fi
+
+  checkError "Build OpenH264"
 
   popd 2> /dev/null
 fi
@@ -79,17 +89,13 @@ if [[ $BUILD_OPENCV -ne 0 ]]; then
   echo "***********************"
 
   python ${OPENCV_SRCDIR}/platforms/js/build_js.py . --build_wasm # --threads --simd
-  if [[ $? -ne 0 ]]; then
-    echo "Build OpenCV failed"
-    exit 1
-  fi
+  
+  checkError "Build OpenCV"
 
   cmake --build . --target install
-  if [[ $? -ne 0 ]]; then
-    echo "Build OpenCV failed"
-    exit 1
-  fi
-
+  
+  checkError "Build OpenCV failed"
+ 
   popd 2> /dev/null
 fi
 
@@ -127,19 +133,16 @@ if [[ $BUILD_FFMPEG -ne 0 ]]; then
               --disable-pthreads \
               --enable-libopenh264 \
               --disable-sdl2
-  if [[ $? -ne 0 ]]; then
-    echo "Configure FFMPEG failed"
-    exit 1
-  fi
+  
+  checkError "Configure FFmpeg"
+
 
   echo "***********************"
   echo "*** Building FFmpeg ***"
   echo "***********************"
   emmake make $EXTRA_MAKE_ARGS install
-  if [[ $? -ne 0 ]]; then
-    echo "Build FFMPEG failed"
-    exit 1
-  fi
+
+  checkError "Building FFmpeg"
 
   popd >/dev/null
 fi
@@ -155,11 +158,15 @@ if [[ $BUILD_MODULE -ne 0 ]]; then
   echo "*** Configuring VideoUtils ***"
   echo "******************************"
   emconfigure cmake .. -DCMAKE_BUILD_TYPE=${MODULE_BUILD_TYPE} -DINCLUDE_TESTS=${MODULE_BUILD_TESTS}
+  
+  checkError "Configuring VideoUtils"
 
   echo "***************************"
   echo "*** Building VideoUtils ***"
   echo "***************************"
   emmake make $EXTRA_MAKE_ARGS install
+
+  checkError "Building VideoUtils"
 
   popd >/dev/null
 fi
