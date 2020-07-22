@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 # set -x
 
+echo "$PATH"
+cmake --version
+
 if [[ "$EMSDK" == "" ]]; then
   echo "EMSDK must be set"
   exit 1
 fi
 
 # . $EMSDK/emsdk_env.sh
-
-echo "$PATH"
-cmake --version
 
 ######
 if [[ "$BUILD_OPENH264" == "" ]]; then
