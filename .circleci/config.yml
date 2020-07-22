@@ -11,13 +11,41 @@ jobs:
     <<: *defaults 
     steps:
       - checkout
+      - run: 
+        name: Init submodules
+        command: sh ./ci/ciScripts/initSubmodules.sh
       - run:
-          name: Run Build
-          command: bash ./ci/build.sh
+        name: Install Dependencies
+        command: sh ./ci/ciScripts/installDependencies.sh
+      - run:
+        name: Install CMake
+        command: |
+          wget https://github.com/Kitware/CMake/releases/download/v3.18.0/cmake-3.18.0-Linux-x86_64.tar.gz
+          tar -xvf cmake-3.18.0-Linux-x86_64.tar.gz 
+          export PATH=/home/circleci/repo/cmake-3.18.0-Linux-x86_64/bin:$PATH
+          cmake --version
+      - run:
+        name: Activate EmSdk
+        command: |
+          sh ./ci/ciScripts/activateEmsdk.sh
+          cd emsdk
+          . ./emsdk_env.sh
+          ./emsdk list
+          emcc -v
+          echo $EMSDK
+      - run:
+        name: Setup Python 2.7
+        command: |
+          export PATH=/opt/circleci/.pyenv/versions/2.7.12/bin/:$PATH
+          pyenv global 2.7.12
+          python --version
+      - run:
+        name: Build
+        command: bash ./build.sh     
       - persist_to_workspace:
-          root: ~/repo
-          paths: 
-            - .
+        root: ~/repo
+        paths: 
+          - .
 
   deploy:
     <<: *defaults  
