@@ -42,6 +42,9 @@ jobs:
           root: ~/repo
           paths: 
             - .
+      - store_artifacts:
+          path: ./build
+          destination: build
 
   deploy:
     <<: *defaults  
