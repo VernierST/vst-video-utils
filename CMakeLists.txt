@@ -12,8 +12,8 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/dist)
 
 # add ffmpeg build output
-include_directories(${CMAKE_BINARY_DIR}/FFmpeg/include)
-link_directories(${CMAKE_BINARY_DIR}/FFmpeg/lib)
+include_directories(${CMAKE_BINARY_DIR}/ffmpeg/include)
+link_directories(${CMAKE_BINARY_DIR}/ffmpeg/lib)
 
 add_subdirectory(src)
 
