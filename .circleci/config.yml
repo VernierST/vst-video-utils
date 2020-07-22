@@ -33,6 +33,7 @@ jobs:
             ./emsdk list
             emcc -v
             echo $EMSDK
+            cd ..
             export PATH=/home/circleci/repo/cmake-3.18.0-Linux-x86_64/bin:/opt/circleci/.pyenv/versions/2.7.12/bin/:$PATH
             pyenv global 2.7.12
             python --version
