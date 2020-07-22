@@ -27,15 +27,15 @@ jobs:
       - run:
           name: Build
           command: |
-            export PATH=/home/circleci/repo/cmake-3.18.0-Linux-x86_64/bin:/opt/circleci/.pyenv/versions/2.7.12/bin/:$PATH
-            pyenv global 2.7.12
-            python --version
             sh ./ci/ciScripts/activateEmsdk.sh
             cd emsdk
             . ./emsdk_env.sh
             ./emsdk list
             emcc -v
             echo $EMSDK
+            export PATH=/home/circleci/repo/cmake-3.18.0-Linux-x86_64/bin:/opt/circleci/.pyenv/versions/2.7.12/bin/:$PATH
+            pyenv global 2.7.12
+            python --version
             bash ./build.sh     
       - persist_to_workspace:
           root: ~/repo
