@@ -43,8 +43,8 @@ jobs:
           paths: 
             - .
       - store_artifacts:
-          path: ./build
-          destination: build
+          path: ./build/dist
+          destination: dist
 
   deploy:
     <<: *defaults  
