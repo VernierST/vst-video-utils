@@ -8,6 +8,8 @@ fi
 
 # . $EMSDK/emsdk_env.sh
 
+echo "$PATH"
+cmake --version
 
 ######
 if [[ "$BUILD_OPENH264" == "" ]]; then
