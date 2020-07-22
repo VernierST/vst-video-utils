@@ -1,6 +1,6 @@
 {
   "name": "@vernier/vst-video-utils-build",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Container of prebuilt binaries used for FFmpeg.",
   "main": "VideoUtils.js",
   "module": "VideoUtils.js",
