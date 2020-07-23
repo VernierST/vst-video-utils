@@ -1,3 +1,3 @@
 echo Publishing package to NPM
-
-npm publish --access public
+echo $PWD
+npm publish
