@@ -1,4 +1,4 @@
-NPMVERSION="$(npm view @vernier/vst-video-utils-build | grep "version:" | awk '{print $2}' | cut -d\' -f2)"
+NPMVERSION="$(npm view @vernier/vst-video-utils-build version)"
 PACKAGEVERSION="$(grep "version" package.json | awk '{print $2}' | cut -d\" -f2)"
 
 echo $NPMVERSION is latest version on NPM
