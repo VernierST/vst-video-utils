@@ -43,7 +43,7 @@ jobs:
           destination: dist
       - run:
           name: Authenticate with registry
-          command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/repo/.npmrc
+          command: echo "//registry.npmjs.org/:_authToken=$minorgal_NPM_TOKEN" > ~/repo/.npmrc
       - run:
           name: Check version and deploy
           command: bash ./ci/ciScripts/checkVersions.sh
