@@ -17,6 +17,7 @@ struct VideoMetaData
   int rotation = 0; // rotation angle in degrees
   int vidWidth = 0;
   int vidHeight = 0;
+  std::string vidCodec;
 };
 
 // safe to call more than once

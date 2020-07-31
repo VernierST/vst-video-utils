@@ -350,6 +350,7 @@ bool GetVideoMetaData(AVFormatContext *cxt, VideoMetaData &meta)
     meta.rotation      = rotation;
     meta.vidWidth      = st->codecpar->width;
     meta.vidHeight     = st->codecpar->height;
+    meta.vidCodec      = avcodec_get_name(st->codecpar->codec_id);
     valid = true;
   }
 
