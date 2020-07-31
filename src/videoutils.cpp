@@ -75,6 +75,8 @@ namespace
   {
 #ifdef __EMSCRIPTEN__
       EM_ASM({
+        const codecStr = UTF8ToString($8);
+
         sendResult($0, {
           avgFrameRate: $1,
           realFrameRate: $2,
@@ -83,6 +85,7 @@ namespace
           rotation: $5,
           vidWidth: $6,
           vidHeight: $7,
+          vidCodec: codecStr
         });
       },
         id,
@@ -92,7 +95,8 @@ namespace
         meta.duration,
         meta.rotation,
         meta.vidWidth,
-        meta.vidHeight
+        meta.vidHeight,
+        meta.vidCodec.c_str()
       );
 #else
     printf("[***] Success (id=%d)\n", id);

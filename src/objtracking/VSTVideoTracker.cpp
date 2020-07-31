@@ -15,63 +15,55 @@
 using namespace vst;
 using namespace cv;
 
-cv::Point CenterOf(const cv::Rect& r) {
-    return cv::Point(r.x + nearbyintf((float)r.width / 2), r.y + nearbyintf((float)r.height / 2));
-}
+namespace
+{
+    cv::Point CenterOf(const cv::Rect& r) {
+        return cv::Point(r.x + nearbyintf((float)r.width / 2), r.y + nearbyintf((float)r.height / 2));
+    }
 
-cv::Rect Expand(const cv::Rect& r, float scalar) {
-    float dw = r.width * scalar;
-    float dh = r.height * scalar;
-    return cv::Rect(nearbyintf(r.x - dw), nearbyintf(r.y - dh), nearbyintf(r.width + dw), nearbyintf(r.height + dh));
-}
+    cv::Rect FitRect(const cv::Rect& rect, const cv::Rect& frame) {
+        float x = rect.x;
+        float y = rect.y;
+        float w = rect.width;
+        float h = rect.height;
 
-cv::Rect FitRect(const cv::Rect& rect, const cv::Rect& frame) {
-    float x = rect.x;
-    float y = rect.y;
-    float w = rect.width;
-    float h = rect.height;
-
-    if (y < frame.y) // top
-        y = frame.y;
-
-    if ((y + h) > (frame.y + frame.height)) // bottom
-    {
-        if (h > frame.height) // height needs to change
-        {
-            h = frame.height;
+        if (y < frame.y) // top
             y = frame.y;
-        }
-        else
-        {
-            y = (frame.y + frame.height) - h;
-        }
-    }
 
-    if (x < frame.x) // left
-        x = frame.x;
-
-    if ((x + w) > (frame.x + frame.width)) // right
-    {
-        if (w > frame.width) // width needs to change
+        if ((y + h) > (frame.y + frame.height)) // bottom
         {
-            w = frame.width;
+            if (h > frame.height) // height needs to change
+            {
+                h = frame.height;
+                y = frame.y;
+            }
+            else
+            {
+                y = (frame.y + frame.height) - h;
+            }
+        }
+
+        if (x < frame.x) // left
             x = frame.x;
-        }
-        else
-        {
-            x = (frame.x + frame.width) - w;
-        }
-    }
 
-    return cv::Rect(nearbyintf(x), nearbyintf(y), nearbyintf(w), nearbyintf(h));
+        if ((x + w) > (frame.x + frame.width)) // right
+        {
+            if (w > frame.width) // width needs to change
+            {
+                w = frame.width;
+                x = frame.x;
+            }
+            else
+            {
+                x = (frame.x + frame.width) - w;
+            }
+        }
+
+        return cv::Rect(nearbyintf(x), nearbyintf(y), nearbyintf(w), nearbyintf(h));
+    }
 }
 
 TrackerResult VSTVideoTracker::TrackObjectInFrame(const cv::Mat& frame, double timeStamp) {
-    // Bump the frame count whenever we return from this function
-    DEFER([this] {
-        _frameCount++;
-        _frameCountInSubtractionPeriod++;
-    });
 
     try {
         Mat mask;
@@ -84,14 +76,15 @@ TrackerResult VSTVideoTracker::TrackObjectInFrame(const cv::Mat& frame, double t
         cv::Rect searchRect;
 
         auto startTime = std::chrono::steady_clock::now();
-        //    double trackingTimeSubset = 0.0;
-        //    int framesReadInCurrentSubtractionPeriod = 0;
 
         cv::Rect objLoc;
         cv::Rect objLocInFrame = _templateArea;
 
+        ++_frameCount;
+        ++_frameCountInSubtractionPeriod;
+
         // Special handling if this is the first frame in the tracking series:
-        if (_frameCount == 0)
+        if (_frameCount == 1)
         {
             // Calculate initial template and histogram:
             // Note: Mat::operator() in use:
@@ -111,8 +104,9 @@ TrackerResult VSTVideoTracker::TrackObjectInFrame(const cv::Mat& frame, double t
             return TrackerResult(center, timeStamp);
         }
 
+
         // 1. Figure out where in the frame we want to search which is about ~1/3 of the frame
-        const float kSearchFactor = 0.33333333;
+        const float kSearchFactor = 1.0f / 3.0f;
 #define Multiply(s1, s2) (int) ((float) s1 * s2)
         searchRect = cv::Rect(_lastObjectLocation.x + _delta.x - Multiply(width, kSearchFactor / 2),
                               _lastObjectLocation.y + _delta.y - Multiply(height, kSearchFactor / 2),
@@ -184,11 +178,11 @@ TrackerResult VSTVideoTracker::TrackObjectInFrame(const cv::Mat& frame, double t
             if (_subtractionPeriodAdjustDuration / kCheckFramesTimeEveryNumberOfFrames > kReadFramesTimeThreshold)
             {
                 if (_subtractionPeriod < 10) {
-                    _subtractionPeriod += 1;
+                    ++_subtractionPeriod;
                 }
             } else {
                 if (_subtractionPeriod > 1) {
-                    _subtractionPeriod -= 1;
+                    --_subtractionPeriod;
                 }
             }
 
@@ -228,7 +222,7 @@ cv::Mat VSTVideoTracker::SubtractBackground(const cv::Mat& fore, const cv::Rect&
     int frameWidth;
     int frameHeight;
 
-    if (searchRect.width == 0 && searchRect.height == 0)
+    if (searchRect.width == 0 || searchRect.height == 0)
     {
         frameX = 0;
         frameY = 0;
@@ -253,7 +247,7 @@ cv::Mat VSTVideoTracker::SubtractBackground(const cv::Mat& fore, const cv::Rect&
     erode(mask, mask, noArray());
     dilate(mask, mask, noArray());
 
-    if (objLoc.width == 0 && objLoc.height == 0)
+    if (objLoc.width == 0 || objLoc.height == 0)
         return mask;
 
     // Contain the objLoc in the searchRect or else openCV asserts
