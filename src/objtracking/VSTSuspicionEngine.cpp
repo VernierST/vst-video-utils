@@ -15,25 +15,23 @@ using namespace vst;
 
 bool VSTSuspicionEngine::PointIsValid(cv::Point p, float timeStamp) {
 
-    DEFER([this]{
-        _instanceCount++;
-    });
+    ++_instanceCount;
 
-    if (_instanceCount == 0) {
+    if (_instanceCount == 1) {
         _lastX = p.x;
         _lastY = p.y;
         _lastTime = timeStamp;
         return true;
     }
 
-    if (_instanceCount < 4) {
+    // We need a large data set before averages are any good as a comparison
+    if (_instanceCount < 5) {
         return true;
     }
-
     float deltaX = p.x - _lastX, deltaY = p.y - _lastY;
     float scalarLocation = sqrtf(deltaX * deltaX + deltaY * deltaY);
 
-    float velo = scalarLocation * _frameRate;
+    float velo = scalarLocation * (1.0 / _frameRate);
     float deltaVelo = abs(velo - _lastVelo);
     float deltaTime = timeStamp - _lastTime;
 
@@ -44,7 +42,7 @@ bool VSTSuspicionEngine::PointIsValid(cv::Point p, float timeStamp) {
     _lastTime = timeStamp;
     _lastVelo = velo;
 
-    float averageAccel = _accelerationSum / (_instanceCount + 1);
+    float averageAccel = _accelerationSum / _instanceCount;
     if (accel > averageAccel * _suspicionFactor)
         return false;
 
