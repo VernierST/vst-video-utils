@@ -1,58 +1,80 @@
-version: 2
+version: 2.1
 
-defaults: &defaults
-  working_directory: ~/repo
-  machine: 
-    image: ubuntu-1604:201903-01
+orbs:
+  vst: vst/vst-native-orb@3.0.0
 
+.current_filters: &current_filters
+  branches:
+    only:
+      - main
+      - /^pr-ci\/.+/
+
+.params: &params
+  package-name: "vstvideoutils"
+  vcs-fingerprint: "50:cd:dd:0b:2a:e7:af:b8:24:b2:00:6d:75:5e:57:1a"
+
+commands:
+  setup-libavformat:
+    description: >
+      Installs libavformat on linux
+    steps:
+      - run:
+          name: Install libavformat
+          command: apt -y install libavformat-dev
+
+  update-git-submodules:
+    description: >
+      Update git submodules
+    steps:
+      - run:
+          command: git submodule update --init
+
+  extra-gitlab-tokens:
+    description: >
+      Additional gitlab tokens
+    steps:
+      - run:
+          command: conan user gitlab+deploy-token-473993 -r vst-libs -p $GITLAB_API_KEY2
 
 jobs:
-  vst-video-utils:
-    <<: *defaults 
+  build:
+    description: >
+      Build for Emscripten
+
+    executor: vst/linux
+
+    parameters:
+      package-name:
+        type: string
+        default: ""
+      vcs-fingerprint:
+        type: string
+        default: ""
+
     steps:
-      - checkout
-      - run: 
-          name: Init submodules
-          command: sh ./ci/ciScripts/initSubmodules.sh
-      - run:
-          name: Install Dependencies
-          command: sh ./ci/ciScripts/installDependencies.sh
-      - run:
-          name: Install CMake
-          command: |
-            wget https://github.com/Kitware/CMake/releases/download/v3.18.0/cmake-3.18.0-Linux-x86_64.tar.gz
-            tar -xvf cmake-3.18.0-Linux-x86_64.tar.gz 
-            export PATH=/home/circleci/repo/cmake-3.18.0-Linux-x86_64/bin:$PATH
-            cmake --version
-      - run:
-          name: Build
-          command: |
-            sh ./ci/ciScripts/activateEmsdk.sh
-            cd emsdk
-            . ./emsdk_env.sh
-            ./emsdk list
-            emcc -v
-            echo $EMSDK
-            cd ..
-            export PATH=/home/circleci/repo/cmake-3.18.0-Linux-x86_64/bin:/opt/circleci/.pyenv/versions/2.7.12/bin/:$PATH
-            pyenv global 2.7.12
-            python --version
-            bash ./build.sh     
-      - store_artifacts:
-          path: ./build/dist
-          destination: dist
-      - run:
-          name: Authenticate with registry
-          command: echo "//registry.npmjs.org/:_authToken=$jminor_npm_token" > ~/repo/.npmrc
-      - run:
-          name: Check version and deploy
-          command: bash ./ci/ciScripts/checkVersions.sh
+      - vst/setup:
+          vcs-fingerprint: << parameters.vcs-fingerprint >>
+      - update-git-submodules
+      - vst/setup-linux
+      - vst/setup-linux-cmake
+      - setup-libavformat
+      - vst/install-conan-and-configure
+      - extra-gitlab-tokens
+      - vst/build:
+          profile: "emscripten"
+          type: "Release"
+      - vst/build:
+          profile: "emscripten"
+          type: "Debug"
+      - vst/upload:
+          package-name: << parameters.package-name >>
+
 
 workflows:
   version: 2
-  build-and-deploy:
+  build:
     jobs:
-      - vst-video-utils:
+      - build:
+          <<: *params
           filters:
-            branches:
-              only: master
+            <<: *current_filters

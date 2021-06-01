@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.9)
 
 set(CMAKE_CXX_STANDARD 11)
 
+add_link_options(-s LLD_REPORT_UNDEFINED)
+
 add_library(videoutils STATIC
             videoutils.cpp
             ffmpegutils.cpp
@@ -14,49 +16,34 @@ add_library(videoutils STATIC
             objtracking/VSTVideoTracker.cpp
 )
 
-set(FFMPEG_LIBS
+set(VIDEOUTILS_LIBS
   avfilter
   avformat
   avcodec
   avutil
+  openh264
+  opencv_imgproc
+  opencv_video
+  opencv_core
+  zlib
 )
 
+target_include_directories(videoutils PUBLIC ${VIDEOUTILS_LIBS})
+target_link_libraries(videoutils ${VIDEOUTILS_LIBS})
+
 add_executable(vstvideoutils main.cpp)
-target_link_libraries(vstvideoutils videoutils ${FFMPEG_LIBS})
+target_link_libraries(vstvideoutils videoutils ${VIDEOUTILS_LIBS})
 
-# OpenH264
-include(FindPkgConfig)
-pkg_search_module(OPENH264 REQUIRED openh264)
-
-
-target_include_directories(videoutils SYSTEM PUBLIC ${OPENH264_INCLUDE_DIRS})
-target_link_directories(videoutils PUBLIC ${OPENH264_LIBRARY_DIRS})
-target_link_libraries(vstvideoutils ${OPENH264_LIBRARIES})
-
-# OpenCV
-#include(FindOpenCV)
-#pkg_search_module(OPENCV REQUIRED opencv)
-set(OPENCV_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/opencv/install/include/opencv4)
-set(OPENCV_LIBRARY_DIRS ${CMAKE_BINARY_DIR}/opencv/install/lib ${CMAKE_BINARY_DIR}/opencv/install/lib/opencv4/3rdparty)
-set(OPENCV_LIBRARIES opencv_imgproc opencv_video opencv_core zlib)
-
-target_include_directories(videoutils SYSTEM PUBLIC ${OPENCV_INCLUDE_DIRS})
-target_link_directories(videoutils PUBLIC ${OPENCV_LIBRARY_DIRS})
-target_link_libraries(vstvideoutils ${OPENCV_LIBRARIES})
-
-if (APPLE)
-  set_target_properties(vstvideoutils PROPERTIES
-   LINK_FLAGS "-L${OPENH264_LIBRARY_DIRS} -lz -liconv -llzma -lbz2 -framework AudioToolbox -framework CoreFoundation -framework CoreVideo -framework CoreMedia -framework VideoToolbox -framework CoreGraphics -framework CoreImage -framework Foundation -framework OpenGL -framework Cocoa"
- )
-endif()
-
-
+#if (APPLE)
+#  set_target_properties(vstvideoutils PROPERTIES
+#   LINK_FLAGS "-L${OPENH264_LIBRARY_DIRS} -lz -liconv -llzma -lbz2 -framework AudioToolbox -framework CoreFoundation -framework CoreVideo -framework CoreMedia -framework VideoToolbox -framework CoreGraphics -framework CoreImage -framework Foundation -framework OpenGL -framework Cocoa"
+# )
+#endif()
 
 set(DEBUG False)
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   set(DEBUG True)
 endif()
-
 
 if ("${CMAKE_SYSTEM_NAME}" STREQUAL "Emscripten")
   set(WASM 1)
@@ -97,4 +84,3 @@ if ("${CMAKE_SYSTEM_NAME}" STREQUAL "Emscripten")
   install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/VideoUtils.js DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 endif()
-

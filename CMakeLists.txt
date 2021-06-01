@@ -1,6 +1,26 @@
 project(videoutils)
 cmake_minimum_required(VERSION 3.9)
 
+if(NOT DEFINED ENV{CIRCLECI})
+  set(CONAN_DISABLE_CHECK_COMPILER yes)
+endif()
+
+if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
+  include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+  conan_basic_setup()
+endif()
+
+# Library version -- keep in sync with configure.ac
+set(VST_VIDEO_UTILS_VERSION_MAJOR 1)
+set(VST_VIDEO_UTILS_VERSION_MINOR 4)
+set(VST_VIDEO_UTILS_VERSION_MICRO 4)
+set(VST_VIDEO_UTILS_REVISION 0)
+
+# Calculated version variables
+set(VST_VIDEO_UTILS_VERSION ${VST_VIDEO_UTILS_VERSION_MAJOR}.${VST_VIDEO_UTILS_VERSION_MINOR}.${VST_VIDEO_UTILS_VERSION_MICRO})
+math(EXPR VST_VIDEO_UTILS_VERSION_NO "${VST_VIDEO_UTILS_VERSION_MINOR}*100 + ${VST_VIDEO_UTILS_VERSION_MICRO}")
+math(EXPR VST_VIDEO_UTILS_CURRENT_AGE "${VST_VIDEO_UTILS_VERSION_NO} - ${VST_VIDEO_UTILS_REVISION}")
+
 option(INCLUDE_TESTS "Include Tests" OFF)
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -10,10 +30,6 @@ endif()
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/dist)
-
-# add ffmpeg build output
-include_directories(${CMAKE_BINARY_DIR}/ffmpeg/include)
-link_directories(${CMAKE_BINARY_DIR}/ffmpeg/lib)
 
 add_subdirectory(src)
 
