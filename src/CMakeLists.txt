@@ -57,7 +57,6 @@ if ("${CMAKE_SYSTEM_NAME}" STREQUAL "Emscripten")
     --bind
     -s ASSERTIONS=1
     -s EXTRA_EXPORTED_RUNTIME_METHODS=['ccall,cwrap']
-    -s SAFE_HEAP=1
     -s WASM=1
     -s NO_EXIT_RUNTIME=1
     -s ALLOW_MEMORY_GROWTH=1
