@@ -22,13 +22,6 @@ commands:
           name: Install libavformat
           command: apt -y install libavformat-dev
 
-  extra-gitlab-tokens:
-    description: >
-      Additional gitlab tokens
-    steps:
-      - run:
-          command: conan user gitlab+deploy-token-473993 -r vst-libs -p $GITLAB_API_KEY2
-
   build:
     description: >
       Build conan package.
@@ -86,7 +79,7 @@ commands:
           command: |
             channel=${CIRCLE_BRANCH//[_+=.,\/]/-}
             echo "Uploading to " ${channel}
-            conan user gitlab+deploy-token-476394 -p $GITLAB_API_KEY -r gitlab
+            conan user gitlab+deploy-token-296862 -p $GITLAB_API_KEY -r gitlab
             conan upload -c -r gitlab --force --all "<< parameters.package-name >>/*@vernierst+vst-native-modules-release/${channel}"
 
 
@@ -111,7 +104,6 @@ jobs:
       - vst/setup-linux
       - vst/setup-linux-cmake
       - vst/install-conan-and-configure
-      - extra-gitlab-tokens
       - build:
           profile: "emscripten"
           type: "Release"
