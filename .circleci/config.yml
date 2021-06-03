@@ -22,13 +22,6 @@ commands:
           name: Install libavformat
           command: apt -y install libavformat-dev
 
-  update-git-submodules:
-    description: >
-      Update git submodules
-    steps:
-      - run:
-          command: git submodule update --init
-
   extra-gitlab-tokens:
     description: >
       Additional gitlab tokens
@@ -115,7 +108,6 @@ jobs:
     steps:
       - vst/setup:
           vcs-fingerprint: << parameters.vcs-fingerprint >>
-      - update-git-submodules
       - vst/setup-linux
       - vst/setup-linux-cmake
       - setup-libavformat
