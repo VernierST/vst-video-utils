@@ -110,7 +110,6 @@ jobs:
           vcs-fingerprint: << parameters.vcs-fingerprint >>
       - vst/setup-linux
       - vst/setup-linux-cmake
-      - setup-libavformat
       - vst/install-conan-and-configure
       - extra-gitlab-tokens
       - build:
