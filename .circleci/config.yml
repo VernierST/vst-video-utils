@@ -22,19 +22,66 @@ commands:
           name: Install libavformat
           command: apt -y install libavformat-dev
 
-  update-git-submodules:
+  build:
     description: >
-      Update git submodules
-    steps:
-      - run:
-          command: git submodule update --init
+      Build conan package.
 
-  extra-gitlab-tokens:
-    description: >
-      Additional gitlab tokens
+    parameters:
+      profile:
+        type: string
+        default: "none"
+      type:
+        type: string
+        default: "Release"
+      build-timeout:
+        type: string
+        default: "10m"
+
     steps:
       - run:
-          command: conan user gitlab+deploy-token-473993 -r vst-libs -p $GITLAB_API_KEY2
+          name: Build << parameters.profile >>  << parameters.type >>
+          when: always
+          no_output_timeout: << parameters.build-timeout >>
+          command: |
+            deps=${CIRCLE_BRANCH##*@}
+            if [ "$deps" = "${CIRCLE_BRANCH}" ]; then
+              deps=""
+              channel=${CIRCLE_BRANCH//[_+=.,\/]/-}
+            else
+              channel=${CIRCLE_BRANCH%@*}
+              channel=${channel//[_+=.,\/]/-}
+            fi
+
+            tmpdir="tmp/<< parameters.profile >>/<< parameters.type >>"
+            mkdir -p $tmpdir
+            echo "Building for << parameters.profile >> on ${channel} for << parameters.type >>; pr_deps '${deps}'"
+            conan install conan -pr << parameters.profile >> -s "build_type=<< parameters.type >>" -o "pr_deps=${deps}" -if $tmpdir
+            conan build conan -bf $tmpdir -sf .
+            conan export-pkg -bf $tmpdir conan "vernierst+vst-libs/${channel}" -pr << parameters.profile >> -s "build_type=<< parameters.type >>" -o "pr_deps=${deps}"
+
+            if [ "Release" = "<< parameters.type >>" ]; then
+              echo "Package release package"
+              conan export-pkg -bf $tmpdir conan "vernierst+vst-native-modules-release/${channel}" -pr << parameters.profile >> -s "build_type=<< parameters.type >>" -o "pr_deps=${deps}"
+            fi
+
+  upload-release:
+    description: >
+      Upload release packages.
+    parameters:
+      package-name:
+        type: string
+        default: ""
+
+    steps:
+      - run:
+          name: Upload vst-native-modules-release
+          when: always
+          command: |
+            channel=${CIRCLE_BRANCH//[_+=.,\/]/-}
+            echo "Uploading to " ${channel}
+            conan user gitlab+deploy-token-296862 -p $GITLAB_API_KEY -r gitlab
+            conan upload -c -r gitlab --force --all "<< parameters.package-name >>/*@vernierst+vst-native-modules-release/${channel}"
+
 
 jobs:
   build:
@@ -54,19 +101,19 @@ jobs:
     steps:
       - vst/setup:
           vcs-fingerprint: << parameters.vcs-fingerprint >>
-      - update-git-submodules
       - vst/setup-linux
       - vst/setup-linux-cmake
       - setup-libavformat
       - vst/install-conan-and-configure
-      - extra-gitlab-tokens
-      - vst/build:
+      - build:
           profile: "emscripten"
           type: "Release"
-      - vst/build:
+      - build:
           profile: "emscripten"
           type: "Debug"
       - vst/upload:
+          package-name: << parameters.package-name >>
+      - upload-release:
           package-name: << parameters.package-name >>
 
 
