@@ -86,7 +86,7 @@ commands:
           command: |
             channel=${CIRCLE_BRANCH//[_+=.,\/]/-}
             echo "Uploading to " ${channel}
-            conan user gitlab+deploy-token-296862 -p $GITLAB_API_KEY -r gitlab
+            conan user gitlab+deploy-token-476394 -p $GITLAB_API_KEY -r gitlab
             conan upload -c -r gitlab --force --all "<< parameters.package-name >>/*@vernierst+vst-native-modules-release/${channel}"
 
 
