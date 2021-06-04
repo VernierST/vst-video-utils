@@ -39,6 +39,7 @@ class VstudmConan(ConanFile):
 
     def package(self):
         self.copy("*", "wasm", "bin")
+        self.copy("VideoUtils.js", "wasm", "src")
 
     def package_id(self):
         self.vst_package_id()
