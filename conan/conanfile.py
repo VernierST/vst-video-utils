@@ -45,3 +45,7 @@ class VstudmConan(ConanFile):
 
     def build_id(self):
         self.vst_build_id()
+
+    def deploy(self):
+        self.copy("*.js")
+        self.copy("*.wasm")
