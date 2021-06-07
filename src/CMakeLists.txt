@@ -65,8 +65,10 @@ if ("${CMAKE_SYSTEM_NAME}" STREQUAL "Emscripten")
     -s FORCE_FILESYSTEM=1
     -s DEMANGLE_SUPPORT=1
     -s DISABLE_EXCEPTION_CATCHING=0
+    -s USE_PTHREADS=0
+    -mno-reference-types -mno-bulk-memory
     -lm
-  )
+   )
 
   # -s NO_FILESYSTEM=1
 
@@ -78,6 +80,7 @@ if ("${CMAKE_SYSTEM_NAME}" STREQUAL "Emscripten")
   endif()
 
   string(REPLACE ";" " " WASM_LINK_FLAGS "${WASM_LINK_FLAGS}")
+  set_target_properties(vstvideoutils PROPERTIES CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WASM_LINK_FLAGS}")
   set_target_properties(vstvideoutils PROPERTIES LINK_FLAGS "${CMAKE_LDFLAGS} ${WASM_LINK_FLAGS}")
 
   install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/VideoUtils.js DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
