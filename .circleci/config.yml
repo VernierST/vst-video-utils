@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  vst: vst/vst-native-orb@3.0.0
+  vst: vst/vst-native-orb@4.0.3
 
 .current_filters: &current_filters
   branches:
