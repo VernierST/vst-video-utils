@@ -21,7 +21,7 @@ self.onmessage = (e) => {
   }
 
   if (!valid) {
-    sendError(msg.id, `Method doesn't exist: ${msg.method}`);
+    self.sendError(msg.id, `Method doesn't exist: ${msg.method}`);
   }
 };
 

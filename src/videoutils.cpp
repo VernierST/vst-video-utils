@@ -25,7 +25,7 @@ extern "C"
 #ifdef __EMSCRIPTEN__
 #define sendError(reqId,errmsg) do { \
     EM_ASM({ \
-      sendError($0,{ \
+      self.sendError($0,{ \
         error: errmsg \
       }); \
     }, reqId); \
@@ -64,7 +64,7 @@ namespace
   void sendResponse(int id)
   {
 #ifdef __EMSCRIPTEN__
-    EM_ASM({ sendResult($0) }, id);
+    EM_ASM({ self.sendResult($0) }, id);
 #else
     printf("[***] Success (id=%d)\n", id);
 #endif
@@ -77,7 +77,7 @@ namespace
       EM_ASM({
         const codecStr = UTF8ToString($8);
 
-        sendResult($0, {
+        self.sendResult($0, {
           avgFrameRate: $1,
           realFrameRate: $2,
           numFrames: $3,
