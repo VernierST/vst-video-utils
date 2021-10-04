@@ -11,7 +11,7 @@ using OpStatus = vst::TrackerResult::OpStatus;
 #ifdef __EMSCRIPTEN__
 #define sendError(reqId,errmsg) do { \
     EM_ASM({ \
-      sendError($0,{ \
+      self.sendError($0,{ \
         error: errmsg \
       }); \
     }, reqId); \
@@ -29,7 +29,7 @@ namespace
   void sendResponse(int id)
   {
 #ifdef __EMSCRIPTEN__
-    EM_ASM({ sendResult($0) }, id);
+    EM_ASM({ self.sendResult($0) }, id);
 #else
     printf("[***] Success (id=%d)\n", id);
 #endif
@@ -38,7 +38,7 @@ namespace
   {
 #ifdef __EMSCRIPTEN__
       EM_ASM({
-        sendResult($0, $1);
+        self.sendResult($0, $1);
       },
         id, trackingCtxId
       );
@@ -51,7 +51,7 @@ namespace
   {
 #ifdef __EMSCRIPTEN__
       EM_ASM({
-        sendResult($0, {
+        self.sendResult($0, {
           x: $1,
           y: $2,
           timeStamp: $3
