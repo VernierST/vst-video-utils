@@ -18,5 +18,7 @@
     "url": "https://github.com/VernierST/vst-video-utils-build/issues"
   },
   "homepage": "https://github.com/VernierST/vst-video-utils-build#readme",
-  "devDependencies": {}
+  "devDependencies": {
+    "shelljs": "^0.8.5"
+  }
 }
