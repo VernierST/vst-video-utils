@@ -2,9 +2,11 @@
 
 Misc Video Utilities
 
+For building instructions using Conan, see [vst-conan-setup](https://bitbucket.org/vernierst/vst-conan-setup/src/main/README.md).
+
 ### Overview
 
-To publish a new version to NPM, bump the version in package.json.  CircleCI will check the version in package.json and compare it with the current version in the NPM registry. If the versions differ, CircleCI will automatically publish the new version. 
+To publish a new version to NPM, bump the version in package.json.  CircleCI will check the version in package.json and compare it with the current version in the NPM registry. If the versions differ, CircleCI will automatically publish the new version.
 
 
 ### Command Line Flags
