@@ -74,7 +74,6 @@ if ("${CMAKE_SYSTEM_NAME}" STREQUAL "Emscripten")
 
   if (DEBUG)
     list(APPEND WASM_LINK_FLAGS
-      --emrun
       -g
     )
   endif()
