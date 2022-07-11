@@ -1,12 +1,13 @@
 version: 2.1
 
 orbs:
-  vst: vst/vst-native-orb@5.0.3
+  vst: vst/vst-native-orb@6.0.6
 
 .current_filters: &current_filters
   branches:
     only:
       - main
+      - next
       - /^pr-ci\/.+/
 
 .params: &params
@@ -55,13 +56,10 @@ commands:
             tmpdir="tmp/<< parameters.profile >>/<< parameters.type >>"
             mkdir -p $tmpdir
             echo "Building for << parameters.profile >> on ${channel} for << parameters.type >>; pr_deps '${deps}'"
-            conan install conan -pr << parameters.profile >> -s "build_type=<< parameters.type >>" -o "pr_deps=${deps}" -if $tmpdir
-            conan build conan -bf $tmpdir -sf .
-            conan export-pkg -bf $tmpdir conan "vernierst+vst-libs/${channel}" -pr << parameters.profile >> -s "build_type=<< parameters.type >>" -o "pr_deps=${deps}" -sf .
-
+            conan create -pr << parameters.profile >> -s "build_type=<< parameters.type >>" ${missing} conan "vernierst+vst-libs/${channel}" -o "pr_deps=${deps}" -s os.threads=False
             if [ "Release" = "<< parameters.type >>" ]; then
               echo "Package release package"
-              conan export-pkg -bf $tmpdir conan "vernierst+vst-native-modules-release/${channel}" -pr << parameters.profile >> -s "build_type=<< parameters.type >>" -o "pr_deps=${deps}" -sf .
+              conan export-pkg -bf $tmpdir conan "vernierst+vst-native-modules-release/${channel}" -pr << parameters.profile >> -s "build_type=<< parameters.type >>" -o "pr_deps=${deps}" -s os.threads=False -sf .
             fi
 
   upload-release:
