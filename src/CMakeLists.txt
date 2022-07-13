@@ -64,7 +64,6 @@ if ("${CMAKE_SYSTEM_NAME}" STREQUAL "Emscripten")
     -s BUILD_AS_WORKER=1
     -s FORCE_FILESYSTEM=1
     -s DEMANGLE_SUPPORT=1
-    -s DISABLE_EXCEPTION_CATCHING=0
     -s USE_PTHREADS=0
     -mno-reference-types -mno-bulk-memory
     -lm
