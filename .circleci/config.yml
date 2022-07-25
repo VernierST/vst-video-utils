@@ -56,10 +56,13 @@ commands:
             tmpdir="tmp/<< parameters.profile >>/<< parameters.type >>"
             mkdir -p $tmpdir
             echo "Building for << parameters.profile >> on ${channel} for << parameters.type >>; pr_deps '${deps}'"
-            conan create -pr << parameters.profile >> -s "build_type=<< parameters.type >>" ${missing} conan "vernierst+vst-libs/${channel}" -o "pr_deps=${deps}" -s os.threads=False
+            conan install conan -pr << parameters.profile >> -s "build_type=<< parameters.type >>" -o "pr_deps=${deps}" -if $tmpdir
+            conan build conan -bf $tmpdir -sf .
+            conan export-pkg -bf $tmpdir conan "vernierst+vst-libs/${channel}" -pr << parameters.profile >> -s "build_type=<< parameters.type >>" -o "pr_deps=${deps}" -sf .
+
             if [ "Release" = "<< parameters.type >>" ]; then
               echo "Package release package"
-              conan export-pkg -bf $tmpdir conan "vernierst+vst-native-modules-release/${channel}" -pr << parameters.profile >> -s "build_type=<< parameters.type >>" -o "pr_deps=${deps}" -s os.threads=False -sf .
+              conan export-pkg -bf $tmpdir conan "vernierst+vst-native-modules-release/${channel}" -pr << parameters.profile >> -s "build_type=<< parameters.type >>" -o "pr_deps=${deps}" -sf .
             fi
 
   upload-release:
