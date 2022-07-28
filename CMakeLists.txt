@@ -13,7 +13,7 @@ endif()
 # Library version -- keep in sync with configure.ac
 set(VST_VIDEO_UTILS_VERSION_MAJOR 1)
 set(VST_VIDEO_UTILS_VERSION_MINOR 4)
-set(VST_VIDEO_UTILS_VERSION_MICRO 4)
+set(VST_VIDEO_UTILS_VERSION_MICRO 5)
 set(VST_VIDEO_UTILS_REVISION 0)
 
 # Calculated version variables
