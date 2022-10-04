@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  vst: vst/vst-native-orb@6.0.8
+  vst: vst/vst-native-orb@6.0.11
 
 .current_filters: &current_filters
   branches:
@@ -53,10 +53,17 @@ commands:
               channel=${channel//[_+=.,\/]/-}
             fi
 
+            # build channel is where deps get pulled from by conan install;
+            # normally this is 'main', except for the 'next' branch
+            build_channel=main
+            if [ "$channel" = "next" ]; then
+              build_channel=next
+            fi
+
             tmpdir="tmp/<< parameters.profile >>/<< parameters.type >>"
             mkdir -p $tmpdir
             echo "Building for << parameters.profile >> on ${channel} for << parameters.type >>; pr_deps '${deps}'"
-            conan install conan -pr << parameters.profile >> -s "build_type=<< parameters.type >>" -o "pr_deps=${deps}" -if $tmpdir
+            conan install -pr << parameters.profile >> -s "build_type=<< parameters.type >>" -o "pr_deps=${deps}" -if $tmpdir conan "vernierst+vst-libs/${build_channel}"
             conan build conan -bf $tmpdir -sf .
             conan export-pkg -bf $tmpdir conan "vernierst+vst-libs/${channel}" -pr << parameters.profile >> -s "build_type=<< parameters.type >>" -o "pr_deps=${deps}" -sf .
 
