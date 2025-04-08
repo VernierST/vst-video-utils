@@ -56,14 +56,14 @@ if ("${CMAKE_SYSTEM_NAME}" STREQUAL "Emscripten")
     --post-js ${POST_JS}
     --bind
     -s ASSERTIONS=1
-    -s EXPORTED_RUNTIME_METHODS=['ccall,cwrap']
+    -s EXPORTED_RUNTIME_METHODS=[ccall,cwrap,print,printErr]
+    -s EXPORTED_FUNCTIONS=[_main,_malloc]
     -s WASM=1
     -s NO_EXIT_RUNTIME=1
     -s ALLOW_MEMORY_GROWTH=1
     -s TOTAL_MEMORY=20971520
     -s BUILD_AS_WORKER=1
     -s FORCE_FILESYSTEM=1
-    -s DEMANGLE_SUPPORT=1
     -s USE_PTHREADS=0
     -mno-reference-types -mno-bulk-memory
     -lm
@@ -78,6 +78,7 @@ if ("${CMAKE_SYSTEM_NAME}" STREQUAL "Emscripten")
   endif()
 
   string(REPLACE ";" " " WASM_LINK_FLAGS "${WASM_LINK_FLAGS}")
+
   set_target_properties(vstvideoutils PROPERTIES CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WASM_LINK_FLAGS}")
   set_target_properties(vstvideoutils PROPERTIES LINK_FLAGS "${CMAKE_LDFLAGS} ${WASM_LINK_FLAGS}")
 

@@ -10,7 +10,7 @@
 #define WASM_EXPORT
 #endif
 
-void InitVideoUtils();
+WASM_EXPORT void InitVideoUtils();
 
 WASM_EXPORT void dumpMetaData     (int reqId, std::string db, std::string filename);
 WASM_EXPORT void readMetaData     (int reqId, std::string db, std::string filename);

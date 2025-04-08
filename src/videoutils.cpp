@@ -145,7 +145,7 @@ void dumpMetaData(int reqId, std::string db, std::string filename)
   ///
   auto onError = [=]()
   {
-    sendError(reqId, "Failed to load file");
+    sendError(reqId, "dumpMetaData: Failed to load file");
   };
 
   IDBLoadAsync(db, filename, onSuccess, onError);
@@ -155,7 +155,6 @@ void dumpMetaData(int reqId, std::string db, std::string filename)
 
 void readMetaData(int reqId, std::string db, std::string filename)
 {
-  ///
   auto onSuccess = [=](const uint8_t *buf, size_t size)
   {
     int result = 0;
@@ -175,13 +174,12 @@ void readMetaData(int reqId, std::string db, std::string filename)
 
     if (ic)
       FreeInputFormatContext(ic);
-
   };
 
   ///
   auto onError = [=]()
   {
-    sendError(reqId, "Failed to load file");
+    sendError(reqId, "readMetaData: Failed to load file");
   };
 
   IDBLoadAsync(db, filename, onSuccess, onError);
@@ -232,7 +230,7 @@ void transcodeRotation(int reqId, std::string db, std::string src, std::string d
   ///
   auto onError = [=]()
   {
-    sendError(reqId, "Failed to load file");
+    sendError(reqId, "transcodeRotation: Failed to load file");
   };
 
   IDBLoadAsync(db, src, onSuccess, onError);
@@ -273,7 +271,7 @@ void transmuxStripMeta(int reqId, std::string db, std::string src, std::string d
                     });
     }
     else
-      sendError(reqId, "Failed to read video file");
+      sendError(reqId, "transmuxStripMeta: Failed to read video file");
 
     if (ic)
       FreeInputFormatContext(ic);
@@ -282,7 +280,7 @@ void transmuxStripMeta(int reqId, std::string db, std::string src, std::string d
   ///
   auto onError = [=]()
   {
-    sendError(reqId, "Failed to load file");
+    sendError(reqId, "transmuxStripMeta: Failed to load file");
   };
 
   IDBLoadAsync(db, src, onSuccess, onError);

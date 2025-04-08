@@ -113,4 +113,3 @@ void IDBStoreAsync(const std::string &db,
   }
 #endif
 }
-
