@@ -20,8 +20,8 @@ namespace
 {
   bool CheckFileExtension(std::string name, std::string extension)
   {
-    std::transform(name.begin(), name.end(), name.begin(), &std::tolower);
-    std::transform(extension.begin(), extension.end(), extension.begin(), &std::tolower);
+    std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+    std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
 
     if (extension.size() > extension.size()) return false;
     return std::equal(extension.rbegin(), extension.rend(), name.rbegin());
